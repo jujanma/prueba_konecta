@@ -41,8 +41,8 @@ exports.login = async (req, res) => {
     }
     console.log("Encontro usuario")
 
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword){
+    // const validPassword = await bcrypt.compare(password, user.password);
+    if (!(password === user.password)){
       return res.status(401).json({ message: "Contraseña incorrecta" });
     }
     

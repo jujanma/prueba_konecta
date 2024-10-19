@@ -9,6 +9,8 @@ const userRoutes = require("./routes/userRoutes");
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.options('*', cors()); // Responde a las solicitudes OPTIONS de todos los orígenes
+
 
 app.use("/api", authRoutes);
 app.use("/api", productRoutes);
