@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+
 require("dotenv").config();
 
 exports.register = async (req, res) => {
@@ -14,15 +15,38 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
+  console.log("Ingresa al login")
+  const { email, password, captchaToken } = req.body;
   try {
+    const hcaptchaVerification = await fetch("https://hcaptcha.com/siteverify",{
+      method: "POST",
+      headers:{
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body:`secret=${process.env.HCAPTCHA_SECRET_KEY}&response=${captchaToken}`,
+    })
+
+    const hcaptchaResponse = await hcaptchaVerification;
+    const {ok} = hcaptchaResponse;
+    console.log({ok})
+
+    if(!ok){
+      return res.status(400).json({message: "La verificación del Captcha fallo"})
+    }
+    console.log("antes de buscar usuario")
     const user = await User.findOne({ where: { email } });
-    if (!user)
+    console.log("usuario de la BD",user)
+    if (!user){
       return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+    console.log("Encontro usuario")
 
     const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword)
+    if (!validPassword){
       return res.status(401).json({ message: "Contraseña incorrecta" });
+    }
+    
+    console.log("Valido contraseña")
 
     const token = jwt.sign(
       { id: user.id, role: user.role },

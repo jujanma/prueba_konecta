@@ -3,10 +3,13 @@ require("dotenv").config();
 
 exports.verifyToken = (req, res, next) => {
   const token = req.header("Authorization");
-  if (!token)
+  console.log("auth middleware inicio")
+  if (!token){
     return res
       .status(401)
       .json({ message: "Acceso denegado. Token no proporcionado" });
+    }
+    console.log("auth middleware despues del if")
 
   try {
     const verified = jwt.verify(token, process.env.JWT_SECRET);

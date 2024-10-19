@@ -1,14 +1,24 @@
 const User = require("../models/User");
 
+
 // Obtener todos los usuarios
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({
       attributes: ["id", "name", "email", "role", "createdAt", "updatedAt"], // Solo devolvemos estos campos
     });
-    res.status(200).json(users);
+    let response = {
+      users,
+      ok: true
+    }
+    res.status(200).json(response);
   } catch (error) {
-    res.status(500).json({ message: "Error al obtener los usuarios", error });
+    let response = {
+      message: "Error al obtener los usuarios",
+      ok: true, 
+      error
+    }
+    res.status(500).json(response);
   }
 };
 

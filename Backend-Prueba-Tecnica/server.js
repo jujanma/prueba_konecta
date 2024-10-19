@@ -1,16 +1,16 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const sequelize = require("./config/db.config");
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
 const userRoutes = require("./routes/userRoutes");
-require("dotenv").config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/auth", authRoutes);
+app.use("/api", authRoutes);
 app.use("/api", productRoutes);
 app.use("/api", userRoutes);
 
