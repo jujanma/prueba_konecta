@@ -44,4 +44,12 @@ User.beforeCreate(async (user) => {
   user.password = await bcrypt.hash(user.password, salt);
 });
 
+// Hook para encriptar antes de actualizar
+User.beforeUpdate(async (user) => {
+  if (user.changed('password')) {  // Solo encripta si la contraseña ha sido modificada
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(user.password, salt);
+  }
+});
+
 module.exports = User;

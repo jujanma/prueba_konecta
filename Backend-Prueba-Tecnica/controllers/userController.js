@@ -15,7 +15,7 @@ exports.getAllUsers = async (req, res) => {
   } catch (error) {
     let response = {
       message: "Error al obtener los usuarios",
-      ok: true, 
+      ok: false, 
       error
     }
     res.status(500).json(response);
@@ -30,10 +30,15 @@ exports.getUserById = async (req, res) => {
       attributes: ["id", "name", "email", "role", "createdAt", "updatedAt"],
     });
 
+    let getUser = {
+      user,
+      ok: true
+    }
+
     if (!user)
       return res.status(404).json({ message: "Usuario no encontrado" });
 
-    res.status(200).json(user);
+    res.status(200).json(getUser);
   } catch (error) {
     res.status(500).json({ message: "Error al obtener el usuario", error });
   }
@@ -48,9 +53,14 @@ exports.createUser = async (req, res) => {
       name,
       email,
       password,
-      role
+      role,
     });
-    res.status(200).json(newUser);
+    const userCreated = {
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role
+    }
+    res.status(200).json({newUser: userCreated, ok: true});
   } catch (error) {
     res.status(500).json({ message: "Error al crear el usuario", error });
   }
@@ -60,19 +70,27 @@ exports.createUser = async (req, res) => {
 // Actualizar un usuario
 exports.updateUser = async (req, res) => {
   const { id } = req.params;
-  const { name, email, role } = req.body;
+  const { name, email, role, password } = req.body;
 
   try {
     const user = await User.findByPk(id);
     if (!user)
       return res.status(404).json({ message: "Usuario no encontrado" });
 
-    user.name = name || user.name;
-    user.email = email || user.email;
-    user.role = role || user.role;
+    const nameUpdated = user.name = name || user.name;
+    const emailUpdated = user.email = email || user.email;
+    const roleUpdated = user.role = role || user.role;
+    const passwordUpdated = user.password = password || user.password;
+
+    let responseUserUpdated = {
+      nameUpdated,
+      emailUpdated,
+      roleUpdated,
+      passwordUpdated,
+    }
 
     await user.save();
-    res.status(200).json(user);
+    res.status(200).json({responseUserUpdated, ok: true});
   } catch (error) {
     res.status(500).json({ message: "Error al actualizar el usuario", error });
   }
@@ -88,7 +106,7 @@ exports.deleteUser = async (req, res) => {
       return res.status(404).json({ message: "Usuario no encontrado" });
 
     await user.destroy();
-    res.status(200).json({ message: "Usuario eliminado exitosamente" });
+    res.status(200).json({ message: "Usuario eliminado exitosamente", ok: true });
   } catch (error) {
     res.status(500).json({ message: "Error al eliminar el usuario", error });
   }

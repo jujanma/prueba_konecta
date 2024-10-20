@@ -1,5 +1,5 @@
 const Product = require("../models/Product");
-const User = require("../models/User");
+// const User = require("../models/User");
 
 exports.getAllProducts = async (req, res) => {
   try {
@@ -51,8 +51,7 @@ exports.createProduct = async (req, res) => {
       updatedBy,
       status: status ?? "Abierto",
     });
-    console.log({newProduct})
-    res.status(201).json(newProduct);
+    res.status(201).json({product: newProduct, ok: true});
   } catch (error) {
     res.status(400).json({ message: "Error al crear producto", error });
   }
@@ -66,15 +65,25 @@ exports.updateProduct = async (req, res) => {
     if (!productToUpdate)
       return res.status(404).json({ message: "Producto no encontrado" });
 
-    productToUpdate.product = product;
-    productToUpdate.amount = amount;
-    productToUpdate.franchise = franchise;
-    productToUpdate.rate = rate;
-    productToUpdate.updatedBy = updatedBy;
-    productToUpdate.status = status;
+    const productUpdated = productToUpdate.product = product;
+    const amountUpdated = productToUpdate.amount = amount;
+    const franchiseUpdated = productToUpdate.franchise = franchise;
+    const rateUpdated = productToUpdate.rate = rate;
+    const updatedByUpdated = productToUpdate.updatedBy = updatedBy;
+    const statusUpdated = productToUpdate.status = status;
+
+    let responseProductUpdated = {
+      productUpdated,
+      amountUpdated,
+      franchiseUpdated,
+      rateUpdated,
+      updatedByUpdated,
+      statusUpdated,
+      ok: true
+    }
 
     await productToUpdate.save();
-    res.status(200).json(productToUpdate);
+    res.status(200).json(responseProductUpdated);
   } catch (error) {
     res.status(400).json({ message: "Error al actualizar producto", error });
   }
@@ -88,7 +97,7 @@ exports.deleteProduct = async (req, res) => {
       return res.status(404).json({ message: "Producto no encontrado" });
 
     await productToDelete.destroy();
-    res.status(200).json({ message: "Producto eliminado" });
+    res.status(200).json({ message: "Producto eliminado", ok: true });
   } catch (error) {
     res.status(500).json({ message: "Error al eliminar producto", error });
   }
