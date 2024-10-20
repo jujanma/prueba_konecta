@@ -15,7 +15,6 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  console.log("Ingresa al login")
   const { email, password, captchaToken } = req.body;
   try {
     const hcaptchaVerification = await fetch("https://hcaptcha.com/siteverify",{
@@ -28,32 +27,34 @@ exports.login = async (req, res) => {
 
     const hcaptchaResponse = await hcaptchaVerification;
     const {ok} = hcaptchaResponse;
-    console.log({ok})
 
     if(!ok){
       return res.status(400).json({message: "La verificación del Captcha fallo"})
     }
-    console.log("antes de buscar usuario")
     const user = await User.findOne({ where: { email } });
-    console.log("usuario de la BD",user)
     if (!user){
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
-    console.log("Encontro usuario")
 
     // const validPassword = await bcrypt.compare(password, user.password);
     if (!(password === user.password)){
       return res.status(401).json({ message: "Contraseña incorrecta" });
     }
-    
-    console.log("Valido contraseña")
-
+    const {id} = user.dataValues;
+    const {role} = user.dataValues;
     const token = jwt.sign(
       { id: user.id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "23h" }
     );
-    res.status(200).json({ token });
+
+    let responseLogin ={
+      token,
+      okjwt: true,
+      id,
+      role,
+    }
+    res.status(200).json(responseLogin);
   } catch (error) {
     res.status(500).json({ message: "Error en el servidor", error });
   }

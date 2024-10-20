@@ -1,9 +1,20 @@
 const Product = require("../models/Product");
+const User = require("../models/User");
 
 exports.getAllProducts = async (req, res) => {
   try {
     const products = await Product.findAll();
-    res.status(200).json(products);
+    const updatedByValues = products.map(product => product.updatedBy);
+    console.log(updatedByValues)
+    // const userUpdated = await User.findByPk(updatedByValues, {
+    //   attributes: ["id", "name", "email", "role", "createdAt", "updatedAt"],
+    // });
+    // console.log(userUpdated)
+    let responseProducts = {
+      products,
+      ok : true
+    }
+    res.status(200).json(responseProducts);
   } catch (error) {
     res.status(500).json({ message: "Error al obtener productos", error });
   }
@@ -16,23 +27,31 @@ exports.getProduct = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: "Producto no encontrado" });
     }
-    res.status(200).json(product);
+    let responseProductId = {
+      product,
+      ok: true
+    }
+    res.status(200).json(responseProductId);
   } catch (error) {
     res.status(500).json({ message: "Error al obtener el producto", error });
   }
 };
 
 exports.createProduct = async (req, res) => {
-  const { product, amount, franchise, rate, createdBy } = req.body;
+  const { product, amount, franchise, rate, createdBy, updatedBy, status } = req.body;
+  console.log(req.body)
   try {
+    console.log("inicia el try de create product")
     const newProduct = await Product.create({
       product,
       amount,
       franchise,
       rate,
       createdBy,
-      status: "Abierto",
+      updatedBy,
+      status: status ?? "Abierto",
     });
+    console.log({newProduct})
     res.status(201).json(newProduct);
   } catch (error) {
     res.status(400).json({ message: "Error al crear producto", error });

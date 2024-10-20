@@ -39,6 +39,24 @@ exports.getUserById = async (req, res) => {
   }
 };
 
+// Crear un usuario
+exports.createUser = async (req, res) => {
+  const { name, email, password, role } = req.body;
+
+  try {
+    const newUser = await User.create({
+      name,
+      email,
+      password,
+      role
+    });
+    res.status(200).json(newUser);
+  } catch (error) {
+    res.status(500).json({ message: "Error al crear el usuario", error });
+  }
+};
+
+
 // Actualizar un usuario
 exports.updateUser = async (req, res) => {
   const { id } = req.params;
